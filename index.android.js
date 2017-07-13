@@ -12,16 +12,7 @@ import {
   Text,
   View
 } from 'react-native';
-import Login from 'react-native-simple-login';
-
-export default class ArrkConfBook extends Component {
-
-  render() {
-    return (
-      <Login />
-    );
-  }
-}
+import Landing from './src/components/Landing'
 
 const styles = StyleSheet.create({
   container: {
@@ -42,4 +33,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ArrkConfBook', () => ArrkConfBook);
+AppRegistry.registerComponent('Landing', () => Landing);
