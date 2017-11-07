@@ -13,6 +13,7 @@ import {
   View
 } from 'react-native';
 import Landing from './src/components/Landing'
+import Auth from './src/components/Auth'
 
 const styles = StyleSheet.create({
   container: {
@@ -33,4 +34,5 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('Landing', () => Landing);
+AppRegistry.registerComponent('Landing', () => Auth);
+

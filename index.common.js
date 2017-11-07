@@ -29,7 +29,7 @@ const ADContext = new ReactNativeAD({
       ]
     })
 	
-export default class Auth extends Component {	
+export default class ArrkConfBook extends Component {	
 
     constructor(props){
 		super(props)
@@ -249,3 +249,5 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
 });
+
+AppRegistry.registerComponent('ArrkConfBook', () => ArrkConfBook);

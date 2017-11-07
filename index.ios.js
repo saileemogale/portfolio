@@ -12,6 +12,7 @@ import {
   View
 } from 'react-native';
 import Landing from './src/components/Landing'
+import Auth from './src/components/Auth'
 
 
 const styles = StyleSheet.create({
@@ -33,4 +34,5 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ArrkConfBook', () => Landing);
+AppRegistry.registerComponent('ArrkConfBook', () => Auth);
+
