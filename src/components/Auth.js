@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import {AzureInstance, AzureLoginView} from 'react-native-azure-ad-2'
 import axios from 'axios';
-import moment from 'moment';
+import moment from 'moment'
 
 import {ReactNativeAD, ADLoginView} from 'react-native-azure-ad'
 const CLIENT_ID = 'f8afa059-b330-458c-8d59-dd799e24e128'
@@ -177,7 +177,7 @@ export default class Auth extends Component {
 			]
 		  case 'after_login' :
 			return [
-			  <Text key="text">You're logged in as {this.state.info} </Text>,
+			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} </Text>,
 			  <View style={styles.listContainer} key="meeting-info">				
 				 {
 				   this.state.calender_array.map((item, index) => (					
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,    
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#ff0000',
   },
   welcome: {
     fontSize: 20,
