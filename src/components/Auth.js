@@ -45,6 +45,7 @@ export default class Auth extends Component {
 		 
 		}
 
+        this._fetchCalenderId = this._fetchCalenderId.bind(this);
 		this._fetchCalenderDetails = this._fetchCalenderDetails.bind(this);		
 		
 	}
@@ -99,7 +100,7 @@ export default class Auth extends Component {
 	}
 	
 	_fetchCalenderId(access_token, user){
-		axios.get(`https://graph.microsoft.com/v1.0/Users/${user.mail}/Calendars`, 
+		axios.get("https://graph.microsoft.com/beta/me/calendars", 
 		{headers: {
                 'accept': 'application/json',                
                 'content-type': 'application/x-www-form-urlencoded',
@@ -108,21 +109,22 @@ export default class Auth extends Component {
 		)
 		.then(response =>  {
 			//console.log("in response of fetch calender_id call123456");
-			//console.log(response);			
 			let calender_id = response.data.value[0].id;	
 			//console.log(calender_id);
 			this._fetchCalenderDetails(access_token, user, calender_id);			
 		})
-		.catch(e => {				
+		.catch(e => {		
+            alert(e)
 			console.log(e);
 		});			
 	}
 	
 	_fetchCalenderDetails(access_token, user, calender_id){
-		//console.log("in fetch calender details");
+		//console.log("in fetch calender details");  
+        alert("in fetch calendar details")
 		var today = moment(new Date()).format('YYYY-MM-DD');
 		var tomorrow = moment(moment()).add(1, 'days').format('YYYY-MM-DD');
-		axios.get(`https://graph.microsoft.com/v1.0/Users/${user.mail}/Calendars/${calender_id}/calendarview?startdatetime=${today}&enddatetime=${tomorrow}`, 
+		axios.get("https://graph.microsoft.com/beta/me/calendar/" + calender_id +"/calendarView?startDateTime=2017-11-09&endDateTime=2017-11-10", 
 		{headers: {
                 'accept': 'application/json',                
                 'content-type': 'application/x-www-form-urlencoded',
@@ -134,12 +136,14 @@ export default class Auth extends Component {
 			//console.log(response.data.value[0].start);
 			//console.log(response.data.value[0].end);
 			//console.log(response.data.value);
+           alert(JSON.stringify(response))
 			this.setState({
 				calender_array : response.data.value
 			})
 		  	
 		})
 		.catch(e => {
+            alert(e)
 			console.log("Error");			
 			console.log(e);
 		});	
@@ -177,7 +181,7 @@ export default class Auth extends Component {
 			]
 		  case 'after_login' :
 			return [
-			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} </Text>,
+			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} {this.state.calender_array}</Text>,
 			  <View style={styles.listContainer} key="meeting-info">				
 				 {
 				   this.state.calender_array.map((item, index) => (					
