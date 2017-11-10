@@ -121,13 +121,12 @@ export default class Auth extends Component {
 	
 	_fetchCalenderDetails(access_token, user, calender_id){
 		//console.log("in fetch calender details");  
-        alert("in fetch calendar details")
 		var today = moment(new Date()).format('YYYY-MM-DD');
 		var tomorrow = moment(moment()).add(1, 'days').format('YYYY-MM-DD');
-		axios.get("https://graph.microsoft.com/beta/me/calendar/" + calender_id +"/calendarView?startDateTime=2017-11-09&endDateTime=2017-11-10", 
+		axios.get("https://graph.microsoft.com/beta/users/972ebbe9-be8d-45b4-8009-f6935135559d/calendar/calendarView?startDateTime=2017-11-10&endDateTime=2017-11-11", 
 		{headers: {
                 'accept': 'application/json',                
-                'content-type': 'application/x-www-form-urlencoded',
+                'content-type': 'application/json',
 				'Authorization': `Bearer ${access_token}`}
 		}
 		)
@@ -136,7 +135,8 @@ export default class Auth extends Component {
 			//console.log(response.data.value[0].start);
 			//console.log(response.data.value[0].end);
 			//console.log(response.data.value);
-           alert(JSON.stringify(response))
+          alert("in response")
+           alert(response.data.value)
 			this.setState({
 				calender_array : response.data.value
 			})
@@ -181,12 +181,12 @@ export default class Auth extends Component {
 			]
 		  case 'after_login' :
 			return [
-			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} {this.state.calender_array}</Text>,
+			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} {this.state.calender_array[0]['organizer']['emailAddress']['name']}</Text>,
 			  <View style={styles.listContainer} key="meeting-info">				
 				 {
 				   this.state.calender_array.map((item, index) => (					
 					  <TouchableOpacity						 
-						 style = {styles.container} key="meeting-info-text"
+						 style = {styles.container} key={index}
 						 onPress = {() => alert(item.start.dateTime)}>
 						 <Text style={styles.text} key="start-time">							
 							Meeting Start time: {moment(item.start.dateTime).format('MMMM Do YYYY, h:mm:ss a')}
@@ -197,13 +197,16 @@ export default class Auth extends Component {
 						 <Text style={styles.text} key="subject">							
 							Subject: {item.subject}
 						 </Text>
+                         <Text style={styles.text} key="organizer">							
+							Organizer: {item.organizer.emailAddress.name}
+						 </Text>
 						 <Text style={styles.text} key="body">							
 							Body Preview: {item.bodyPreview}
 						 </Text>						 
 						 {
 							item.attendees.map((attendee, idx) => {
-							<Text style={styles.text} key={attendee.emailAddress.address}>							
-								Email: {attendee.emailAddress.address}
+							<Text style={styles.text} key={attendee.emailAddress.name}>							
+								Name: {attendee.emailAddress.name}
 							</Text>
 							})
 						 }
