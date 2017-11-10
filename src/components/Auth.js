@@ -11,7 +11,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  FlatList
+  FlatList,
+  Image
 } from 'react-native';
 import {AzureInstance, AzureLoginView} from 'react-native-azure-ad-2'
 import axios from 'axios';
@@ -135,8 +136,6 @@ export default class Auth extends Component {
 			//console.log(response.data.value[0].start);
 			//console.log(response.data.value[0].end);
 			//console.log(response.data.value);
-          alert("in response")
-           alert(response.data.value)
 			this.setState({
 				calender_array : response.data.value
 			})
@@ -163,7 +162,7 @@ export default class Auth extends Component {
 		  case 'before_login' :
 			return <TouchableOpacity style={styles.button}
 			  onPress={(this._showADLogin.bind(this))}>
-			  <Text style={{color : 'white'}}>Login</Text>
+              <Image source={require('../assets/calendar.png')} style={styles.backgroundImage} />
 			</TouchableOpacity>
 		  case 'login' :
 			// In fact we care if it successfully redirect to the URI, because
@@ -231,7 +230,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,    
     alignItems: 'center',
-    backgroundColor: '#ff0000',
+    backgroundColor: '#ffffff',
   },
   welcome: {
     fontSize: 20,
@@ -255,4 +254,7 @@ const styles = StyleSheet.create({
   text: {    
     textAlign: 'left',
   },
+  backgroundImage: {
+
+  }
 });
