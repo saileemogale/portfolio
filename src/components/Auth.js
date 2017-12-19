@@ -12,11 +12,13 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  Image
+  Image,
+  ScrollView
 } from 'react-native';
 import {AzureInstance, AzureLoginView} from 'react-native-azure-ad-2'
 import axios from 'axios';
 import moment from 'moment'
+import { List, ListItem } from "react-native-elements"
 
 import {ReactNativeAD, ADLoginView} from 'react-native-azure-ad'
 const CLIENT_ID = 'f8afa059-b330-458c-8d59-dd799e24e128'
@@ -43,11 +45,13 @@ export default class Auth extends Component {
 		  // for display different views
 		  displayType : 'before_login',	
 		  calender_array : [],
+          all_rooms: ["Apollo", "Aryabhatta", "Atlantis", "Chanllenger", "Chandrayan", "Endeavour", "Columbia", "Discovery", "Pioneer", "Voyager"]
 		 
 		}
 
-        this._fetchCalenderId = this._fetchCalenderId.bind(this);
-		this._fetchCalenderDetails = this._fetchCalenderDetails.bind(this);		
+        this._fetchCalenderId = this._fetchCalenderId.bind(this)
+		this._fetchCalenderDetails = this._fetchCalenderDetails.bind(this)
+        this._fetchAllRooms = this._fetchAllRooms.bind(this)
 		
 	}
 	
@@ -92,7 +96,9 @@ export default class Auth extends Component {
 		.then(user => {
 		  //console.log("user logged in");
 		  //console.log(user.mail);
-		  this._fetchCalenderId(access_token, user);
+          //this._fetchAllRooms(access_token, user)
+		  this._fetchCalenderId(access_token, user)
+          //this._fetchAllRooms(access_token, user)
 		  this.setState({
 			displayType : 'after_login',
 			info : user.displayName
@@ -109,13 +115,15 @@ export default class Auth extends Component {
 		}
 		)
 		.then(response =>  {
+            console.log("in response of calendars")
 			//console.log("in response of fetch calender_id call123456");
 			let calender_id = response.data.value[0].id;	
-			//console.log(calender_id);
-			this._fetchCalenderDetails(access_token, user, calender_id);			
+			console.log(calender_id);
+			this._fetchCalenderDetails(access_token, user, calender_id)
+            
 		})
 		.catch(e => {		
-            alert(e)
+            console.log("in catch of fetch calendar id")
 			console.log(e);
 		});			
 	}
@@ -124,7 +132,7 @@ export default class Auth extends Component {
 		//console.log("in fetch calender details");  
 		var today = moment(new Date()).format('YYYY-MM-DD');
 		var tomorrow = moment(moment()).add(1, 'days').format('YYYY-MM-DD');
-		axios.get("https://graph.microsoft.com/beta/users/972ebbe9-be8d-45b4-8009-f6935135559d/calendar/calendarView?startDateTime=2017-11-10&endDateTime=2017-11-11", 
+		axios.get("https://graph.microsoft.com/beta/users/972ebbe9-be8d-45b4-8009-f6935135559d/calendar/calendarView?startDateTime=2017-12-18&endDateTime=2017-12-19", 
 		{headers: {
                 'accept': 'application/json',                
                 'content-type': 'application/json',
@@ -135,18 +143,49 @@ export default class Auth extends Component {
 			//console.log("in response of calenders call");		
 			//console.log(response.data.value[0].start);
 			//console.log(response.data.value[0].end);
-			//console.log(response.data.value);
+            console.log("In success of calendar details")
+			console.log(response.data.value);
 			this.setState({
 				calender_array : response.data.value
 			})
 		  	
 		})
 		.catch(e => {
-            alert(e)
-			console.log("Error");			
+			console.log("In catch of fetch calendar details");			
 			console.log(e);
 		});	
-	}	
+      
+      
+	}
+  
+    _fetchAllRooms(access_token, user){
+        console.log("in fetch all rooms")
+        console.log(access_token)
+		//console.log("in fetch calender details");  
+		axios.get("https://graph.microsoft.com/beta/users/sailee.mogale@arrkgroup.com/findrooms",
+		{headers: {
+                'Content-Type': 'application/json',                
+				'Authorization': `Bearer ${access_token}`}
+		}
+		)
+		.then(response => {
+			//console.log("in response of calenders call");		
+			//console.log(response.data.value[0].start);
+			//console.log(response.data.value[0].end);
+			//console.log(response.data.value);
+            console.log(response.data.value)
+			this.setState({
+				all_rooms : response.data.value
+			})
+		  	
+		})
+		.catch(e => {
+			console.log("In catch of fetch all rooms");			
+			console.log(e);
+		});	
+      
+      
+	}
 
     render() {
         return (
@@ -162,7 +201,7 @@ export default class Auth extends Component {
 		  case 'before_login' :
 			return <TouchableOpacity style={styles.button}
 			  onPress={(this._showADLogin.bind(this))}>
-              <Image source={require('../assets/calendar.png')} style={styles.backgroundImage} />
+              <Image source={require('../assets/hang-on-backdrop.png')} style={styles.backgroundImage} />
 			</TouchableOpacity>
 		  case 'login' :
 			// In fact we care if it successfully redirect to the URI, because
@@ -180,44 +219,31 @@ export default class Auth extends Component {
 			]
 		  case 'after_login' :
 			return [
-			  <Text style={StyleSheet.bigblue} key="text">You're logged in as {this.state.info} {this.state.calender_array[0]['organizer']['emailAddress']['name']}</Text>,
-			  <View style={styles.listContainer} key="meeting-info">				
-				 {
-				   this.state.calender_array.map((item, index) => (					
-					  <TouchableOpacity						 
-						 style = {styles.container} key={index}
-						 onPress = {() => alert(item.start.dateTime)}>
-						 <Text style={styles.text} key="start-time">							
-							Meeting Start time: {moment(item.start.dateTime).format('MMMM Do YYYY, h:mm:ss a')}
-						 </Text>
-						 <Text style={styles.text} key="end-time">
-							Meeting End time: {moment(item.end.dateTime).format('MMMM Do YYYY, h:mm:ss a')}
-						 </Text>
-						 <Text style={styles.text} key="subject">							
-							Subject: {item.subject}
-						 </Text>
-                         <Text style={styles.text} key="organizer">							
-							Organizer: {item.organizer.emailAddress.name}
-						 </Text>
-						 <Text style={styles.text} key="body">							
-							Body Preview: {item.bodyPreview}
-						 </Text>						 
-						 {
-							item.attendees.map((attendee, idx) => {
-							<Text style={styles.text} key={attendee.emailAddress.name}>							
-								Name: {attendee.emailAddress.name}
-							</Text>
-							})
-						 }
-						
-					  </TouchableOpacity>
-				   ))
-				}
-			  </View>,
-			  <TouchableOpacity key="button" style={styles.button}
-				onPress={(this._logout.bind(this))}>
-				<Text style={{color : 'white'}}>Logout</Text>
-			  </TouchableOpacity>]
+              <View style={styles.listContainer} key="meeting-info">
+                <Text style={styles.baseText}>
+                      Bookings
+                </Text>
+                <ScrollView horizontal>
+                  {
+                  this.state.all_rooms.map((room, index) => (
+                    <View style={{ width: 150, height: 25, backgroundColor: '#c9a449' }}><Text>{room}</Text></View>
+                  ))
+                }
+                </ScrollView>
+                {
+                  this.state.calender_array.map((item, index) => (
+                    <ListItem
+                        key={index}
+                        title={item.organizer.emailAddress.name}
+                        subtitle={`${moment(item.start.dateTime).utcOffset(+660).format('Do MMM, h:mm a')} - ${moment(item.end.dateTime).utcOffset(+660).format('h:mm a')}`}
+                        style={styles.listContainer}
+                      />
+                  ))
+                }
+                
+                
+              </View>
+			  ]
 		  break
 		}
   }
@@ -248,13 +274,23 @@ const styles = StyleSheet.create({
     padding : 12
   },
   listContainer: {
-    flex: 1,
-    marginTop: 20,
+    width: 300,
+    marginTop: 20
   },
   text: {    
     textAlign: 'left',
   },
   backgroundImage: {
-
+    flex: 1,
+    resizeMode: 'cover', // or 'stretch'
+  },
+  contentContainer: {
+    paddingVertical: 20,
+    backgroundColor: '#8B008B'
+  },
+  baseText: {
+    paddingVertical: 10,
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 });
