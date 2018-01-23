@@ -18,7 +18,7 @@ import {
 import {AzureInstance, AzureLoginView} from 'react-native-azure-ad-2'
 import axios from 'axios';
 import moment from 'moment'
-import { List, ListItem } from "react-native-elements"
+import { List, ListItem, Divider } from "react-native-elements"
 
 import {ReactNativeAD, ADLoginView} from 'react-native-azure-ad'
 const CLIENT_ID = 'f8afa059-b330-458c-8d59-dd799e24e128'
@@ -45,7 +45,7 @@ export default class Auth extends Component {
 		  // for display different views
 		  displayType : 'before_login',	
 		  calender_array : [],
-          all_rooms: ["Apollo", "Aryabhatta", "Atlantis", "Chanllenger", "Chandrayan", "Endeavour", "Columbia", "Discovery", "Pioneer", "Voyager"]
+          all_rooms: ["Apollo", "Aryabhatta", "Atlantis", "Challenger", "Chandrayan", "Endeavour", "Columbia", "Discovery", "Pioneer", "Voyager"]
 		 
 		}
 
@@ -219,30 +219,48 @@ export default class Auth extends Component {
 			]
 		  case 'after_login' :
 			return [
-              <View style={styles.listContainer} key="meeting-info">
-                <Text style={styles.baseText}>
-                      Bookings
-                </Text>
-                <ScrollView horizontal>
+              <ScrollView style={styles.listContainer} key="meeting-info">
+                
+                  <Text style={styles.baseText}>
+                        Bookings
+                  </Text>
+                  <ScrollView horizontal>
+                    {
+                    this.state.all_rooms.map((room, index) => (
+                      <View style={{ width: 150, height: 50, backgroundColor: '#c9a449', marginTop: 20 }}><Text>{room}</Text></View>
+                    ))
+                  }
+                  </ScrollView>
+                  <Text style={styles.activeRooms}>
+                    IN USE
+
+                  </Text>
+                  <Text style={styles.activeRooms}>
+                    ARYABHATTA ROOM
+                  </Text>
+                  <Text style={styles.activeRooms}>
+
+                    2.00 pm - 3.00pm
+                  </Text> 
+                  <Text style={styles.activeRooms}>
+                    KAUSTUBH MULEY
+
+                  </Text>
                   {
-                  this.state.all_rooms.map((room, index) => (
-                    <View style={{ width: 150, height: 25, backgroundColor: '#c9a449' }}><Text>{room}</Text></View>
-                  ))
-                }
-                </ScrollView>
-                {
-                  this.state.calender_array.map((item, index) => (
-                    <ListItem
-                        key={index}
-                        title={item.organizer.emailAddress.name}
-                        subtitle={`${moment(item.start.dateTime).utcOffset(+660).format('Do MMM, h:mm a')} - ${moment(item.end.dateTime).utcOffset(+660).format('h:mm a')}`}
-                        style={styles.listContainer}
-                      />
-                  ))
-                }
+                    this.state.calender_array.map((item, index) => (
+                      <ListItem
+                          key={index}
+                          title={item.organizer.emailAddress.name}
+                          subtitle={`${moment(item.start.dateTime).utcOffset(+660).format('Do MMM, h:mm a')} - ${moment(item.end.dateTime).utcOffset(+660).format('h:mm a')}`}
+                          style={styles.listContainer}
+                        />
+                    ))
+                  }
                 
                 
-              </View>
+                
+                
+              </ScrollView>
 			  ]
 		  break
 		}
@@ -256,7 +274,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,    
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor : '#390b56'
   },
   welcome: {
     fontSize: 20,
@@ -292,5 +310,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  activeRooms: {
+    backgroundColor: '#ff0000',
+    height: 20,
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    textAlign: 'center'
+  },
+  dividerClass: { 
+    backgroundColor: 'blue' 
   }
 });
