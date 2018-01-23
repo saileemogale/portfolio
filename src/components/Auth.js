@@ -240,9 +240,11 @@ export default class Auth extends Component {
                       />
                   ))
                 }
-                
-                
-              </View>
+              </View>,
+              <TouchableOpacity key="button" style={styles.button}
+                onPress={(this._logout.bind(this))}>
+                <Text style={{color : 'white'}}>Logout</Text>
+              </TouchableOpacity>
 			  ]
 		  break
 		}
