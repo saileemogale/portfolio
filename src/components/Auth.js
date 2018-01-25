@@ -21,12 +21,12 @@ import moment from 'moment'
 import { List, ListItem, Divider } from "react-native-elements"
 
 import {ReactNativeAD, ADLoginView} from 'react-native-azure-ad'
-const CLIENT_ID = 'f8afa059-b330-458c-8d59-dd799e24e128'
+const CLIENT_ID = 'f2563c08-5780-4d2d-881a-6147498f9f7f'
 const AUTH_URL = 'https://login.microsoftonline.com/common/oauth2/authorize'
 const ADContext = new ReactNativeAD({
       client_id : CLIENT_ID,
       authority_host : AUTH_URL,
-      client_secret : 'MFCyjDtniB8Xzb8Swg3ga8n',
+      client_secret : 'win1WsTUDvVA9DJtvmzZA/jUWkOI8G3NdRNjy3nN9Gk=',
       resources : [
         'https://graph.microsoft.com',
       ]
