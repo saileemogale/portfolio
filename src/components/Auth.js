@@ -47,7 +47,7 @@ export default class Auth extends Component {
 		  // for display different views
 		  displayType : 'before_login',	
 		  calender_array : [],
-          allRooms: [{name: "Apo"}],
+          allRooms: [],
           accessToken: null
 		 
 		}
