@@ -11,14 +11,16 @@ import {
   Text,
   TouchableOpacity,
   View,
-  FlatList,
   Image,
-  ScrollView
+  ScrollView,
+  TouchableHighlight,
+  FlatList
 } from 'react-native';
 import {AzureInstance, AzureLoginView} from 'react-native-azure-ad-2'
 import axios from 'axios';
 import moment from 'moment'
 import { List, ListItem, Divider } from "react-native-elements"
+import Hyperlink from 'react-native-hyperlink'
 
 import {ReactNativeAD, ADLoginView} from 'react-native-azure-ad'
 const CLIENT_ID = 'f2563c08-5780-4d2d-881a-6147498f9f7f'
@@ -45,13 +47,15 @@ export default class Auth extends Component {
 		  // for display different views
 		  displayType : 'before_login',	
 		  calender_array : [],
-          allRooms: []
+          allRooms: [{name: "Apo"}],
+          accessToken: null
 		 
 		}
 
         this._fetchCalenderId = this._fetchCalenderId.bind(this)
 		this._fetchCalenderDetails = this._fetchCalenderDetails.bind(this)
         this._fetchAllRooms = this._fetchAllRooms.bind(this)
+        this._handleRoomClick = this._handleRoomClick.bind(this)
 		
 	}
 	
@@ -82,10 +86,41 @@ export default class Auth extends Component {
 		})
 	}
 	
+    _handleRoomClick(roomId, event){
+      console.log(roomId)
+      
+      console.log("Before room calendar details call")
+      var today = moment(new Date()).format('YYYY-MM-DD');
+      var tomorrow = moment(moment()).add(1, 'days').format('YYYY-MM-DD');
+      axios.get("https://graph.microsoft.com/beta/users/" + roomId+ "/calendar/calendarView?startDateTime=" + today + "&endDateTime=" + tomorrow,
+      {headers: {
+              'accept': 'application/json',                
+              'content-type': 'application/json',
+              'Authorization': `Bearer ${this.state.accessToken}`}
+      }
+      )
+      .then(response => {
+          //console.log("in response of calenders call");		
+          //console.log(response.data.value[0].start);
+          //console.log(response.data.value[0].end);
+          console.log("In success of calendar details")
+          console.log(response.data.value);
+
+          this.setState({
+              calender_array : response.data.value
+          })
+
+      })
+      .catch(e => {
+          console.log("In catch of fetch calendar details");			
+          console.log(e);
+      });	
+    }
 	
 	_onLoginSuccess(cred) {
 		//console.log('user credential', cred)
 		let access_token = ADContext.getAccessToken('https://graph.microsoft.com')
+        this.state.accessToken = access_token
         
         console.log(access_token)
 		fetch('https://graph.microsoft.com/beta/me', {
@@ -99,14 +134,17 @@ export default class Auth extends Component {
 		  //console.log("user logged in");
 		  //console.log(user.mail);
           //this._fetchAllRooms(access_token, user)
-          
+          this._fetchAllRooms(access_token, user)
+          this.setState({
+              displayType : 'after_login',
+              info : user.displayName,
+              calender_array: [],
+              allRooms: []
+            })
           console.log(user)
 		  //this._fetchCalenderId(access_token, user)
-          this._fetchAllRooms(access_token, user)
-		  this.setState({
-			displayType : 'after_login',
-			info : user.displayName
-		  })		  
+          
+		 		  
 		})	
 	}
 	
@@ -137,7 +175,7 @@ export default class Auth extends Component {
 		//console.log("in fetch calender details");  
 		var today = moment(new Date()).format('YYYY-MM-DD');
 		var tomorrow = moment(moment()).add(1, 'days').format('YYYY-MM-DD');
-		axios.get("https://graph.microsoft.com/beta/me/calendar/calendarView?startDateTime=2017-12-18&endDateTime=2017-12-19", 
+		axios.get("https://graph.microsoft.com/beta/${calendarAddress}/calendar/calendarView?startDateTime=2017-12-18&endDateTime=2017-12-19", 
 		{headers: {
                 'accept': 'application/json',                
                 'content-type': 'application/json',
@@ -183,9 +221,11 @@ export default class Auth extends Component {
             
             
             console.log(response.data.value)
-            this.setState({allRooms: response.data.value})
-            this.setState({
-              displayType : 'after_login'
+             this.setState({
+              allRooms: response.data.value,
+              displayType : 'after_login',
+              info : user.displayName,
+               calender_array: []
             })
             this.state.allRooms.map(function(room, index){
               console.log(room.name)
@@ -199,6 +239,7 @@ export default class Auth extends Component {
       
       
 	}
+
 
     render() {
         return (
@@ -233,26 +274,53 @@ export default class Auth extends Component {
 		  case 'after_login' :
             console.log("in after login")
             console.log(this.state.allRooms)
+            console.log(this.state.calendar_array)
+            let that = this
+            let calendarLength = this.state.calendar_array != undefined ? this.state.calendar_array.length : 0
+            console.log("length")
+            console.log(calendarLength)
 			return [
-              <View style={styles.listContainer} key="meeting-info">
+              <ScrollView contentContainerStyle={styles.listContainer} key="meeting-info">
                 
                   <Text style={styles.baseText}>
                         Bookings
                   </Text>
-                  
                 
-                <ScrollView horizontal>
-                    {
-                      this.state.allRooms.map((room, index) => (
-                        <View key={index} style={{ width: 150, height: 25, backgroundColor: '#c9a449'}}><Text>{room.name}</Text></View>
-                      ))
+                <ScrollView  contentContainerStyle={{paddingVertical: 20}} horizontal={true}>   
+                {
+                      this.state.allRooms.map(function (room) {
+                        console.log(that.state.calender_array)
+                        return (
+                           
+                            <TouchableOpacity onPress={() => that._handleRoomClick(room.address, that)}>
+                              <Text style={styles.baseText, [calendarLength > 0 ? styles.selectedRoom : styles.roomDisplay]} >{room.name}</Text>
+                            </TouchableOpacity>
+
+                        
+                        )
+                     })  
                   }
-                  </ScrollView>,
+                </ScrollView>
+                {
+                
+                   this.state.calender_array.map((item, index) => (
+                    <ListItem
+                        key={index}
+                        title={item.organizer.emailAddress.name}
+                        subtitle={`${moment(item.start.dateTime).utcOffset(+660).format('Do MMM, h:mm a')} - ${moment(item.end.dateTime).utcOffset(+660).format('h:mm a')}`}
+                        style={styles.listDisplay}
+                      />
+                  ))
+                }
+                
+                
+
+                
                 <TouchableOpacity key="button" style={styles.button}
                   onPress={(this._logout.bind(this))}>
                   <Text style={{color : 'white'}}>Logout</Text>
                 </TouchableOpacity>
-              </View>
+              </ScrollView>
 			  ]
 		  break
 		}
@@ -284,8 +352,7 @@ const styles = StyleSheet.create({
     padding : 12
   },
   listContainer: {
-    width: 300,
-    marginTop: 20
+    paddingVertical: 20
   },
   text: {    
     textAlign: 'left',
@@ -301,7 +368,9 @@ const styles = StyleSheet.create({
   baseText: {
     paddingVertical: 10,
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 25,
   },
   activeRooms: {
     backgroundColor: '#ff0000',
@@ -312,5 +381,31 @@ const styles = StyleSheet.create({
   },
   dividerClass: { 
     backgroundColor: 'blue' 
+  },
+  listDisplay: {
+    width: 300
+  },
+  selectedRoom: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FFA500',
+    backgroundColor: '#FFA500',
+    height: 50,
+    paddingVertical: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    bottom: 20
+  },
+  roomDisplay: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#fff',
+    height: 50,
+    paddingVertical: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    bottom: 20
   }
 });
